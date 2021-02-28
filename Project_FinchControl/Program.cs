@@ -12,7 +12,7 @@ namespace Project_FinchControl
      * Description:First use of Finch Robot
      * Author:Laurent Mase
      * Date:2/12/2021
-     * Last Modified: 2/21/2021
+     * Last Modified: 2/28/2021
      * ***********************************************/
 
     class Program
@@ -151,7 +151,7 @@ namespace Project_FinchControl
                 Console.WriteLine("\tc) Get Data");
                 Console.WriteLine("\td) Show Data");
                 Console.WriteLine("\tq) Return to Main Menu");
-                Console.WriteLine("\t\tEnter Your Choice");
+                Console.Write("\t\tEnter Your Choice: ");
                 menuChoice = Console.ReadLine().ToLower();
 
                 switch (menuChoice)
