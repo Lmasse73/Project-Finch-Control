@@ -30,7 +30,7 @@ namespace Project_FinchControl
      * Description:First use of Finch Robot
      * Author:Laurent Mase
      * Date:2/12/2021
-     * Last Modified: 2/28/2021
+     * Last Modified: 3/28/2021
      * ***********************************************/
 
     class Program
@@ -62,7 +62,6 @@ namespace Project_FinchControl
         {
             bool quitApplication = false;
             string menuChoice;
-            (string userName, string userPassword) credentials;
             List<string> clients = new List<string>();
             clients = ReadClientListFile();
             SetTheme();
