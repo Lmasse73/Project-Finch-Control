@@ -159,7 +159,7 @@ namespace Project_FinchControl
                     {
                         Console.WriteLine("\tUser Name Already Exists.");
                         Console.WriteLine();
-                        Console.WriteLine("\nPress any key to go back to the Main menu and try again.");
+                        Console.WriteLine("\n\tPress any key to go back to the Main menu and try again.");
                         Console.ReadKey();
                         userExists = true;
                     }
@@ -215,7 +215,7 @@ namespace Project_FinchControl
                     userName = Console.ReadLine();
                     if (userName == "")
                     {
-                        Console.Write("\tUser Name Can Not Be Blank.");
+                        Console.Write("\tUser Name Can Not Be Blank, Enter Again:");
                     }
                     else
                     {
@@ -256,7 +256,6 @@ namespace Project_FinchControl
                         Console.WriteLine("\tInvalid Entry, Please Try Again");
                      }
                 
-                DisplayContinuePrompt();
             }
 
             /// <summary>
