@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using FinchAPI;
 
 namespace Project_FinchControl
@@ -42,7 +45,7 @@ namespace Project_FinchControl
             SetTheme();
 
             DisplayWelcomeScreen();
-            DisplayMenuScreen();
+            DisplayUserLogin();
             DisplayClosingScreen();
         }
 
@@ -54,10 +57,287 @@ namespace Project_FinchControl
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.BackgroundColor = ConsoleColor.White;
         }
+        #region USER LOGIN        
+        static void DisplayUserLogin()
+        {
+            bool quitApplication = false;
+            string menuChoice;
+            (string userName, string userPassword) credentials;
+            List<string> clients = new List<string>();
+            clients = ReadClientListFile();
+            SetTheme();
+            DisplayScreenHeader("Main Login Menu");
+
+            do
+            {
+
+                //
+                // get user menu choice
+                //
+                DisplayContinuePrompt();
+                Console.WriteLine();
+                Console.WriteLine("\ta) Register As A New User");
+                Console.WriteLine("\tb) Log In");
+                Console.WriteLine("\tq) Quit");
+                Console.Write("\t\tEnter Choice:");
+                menuChoice = Console.ReadLine().ToLower();
+                DisplayContinuePrompt();
+
+                switch (menuChoice)
+                {
+                    case "a":
+                        RegisterNewUser(clients);
+                        break;
+
+                    case "b":
+                        LogInUser(clients);
+                        break;
+
+                    case "q":
+                        quitApplication = true;
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tPlease Enter a Letter From the Menu Choices.");
+                        DisplayContinuePrompt();
+                        break;
+                }
+
+            } while (!quitApplication);
+        }
+
+
+
+            /// <summary>
+            /// REGISTER NEW USER
+            /// calling the GetNewUserCrediential Method to get the userName and pass
+            /// Adding the user to the clients list
+            /// Calling the methof WriteToFile to write updated clients list
+            /// </summary>
+            /// <param name="clients"></param>
+            private static (string userName, string userPassword) RegisterNewUser(List<string> clients)
+            {
+                (string userName, string userPassword) credentials;    //declare tuple
+                DisplayScreenHeader("Register");
+                DisplayContinuePrompt();
+
+                credentials = GetNewUserCredentials(clients);    //get user credientials for a new user
+
+                clients.Add(credentials.userName + "," + credentials.userPassword);   //add new user to the client list
+
+                WriteToFile(clients);    //write the updated clientlist to the file
+
+                return credentials;
+
+            }
+
+            /// <summary>
+            /// Get New User Credientials Method
+            /// getting userName and password from user
+            /// call method to verify length of password
+            /// </summary>
+            /// <param name="clients"></param>
+            /// <returns></returns>
+            private static (string userName, string userPassword) GetNewUserCredentials(List<string> clients)
+            {
+                int passwordLength = 8;
+                (string userName, string userPassword) credentials;
+                credentials.userPassword = "";
+                credentials.userName = "";
+                bool userExists = false;
+
+                Console.Write("\tEnter your user name:");
+                credentials.userName = GetUserName();
+
+                string[] clientInfo;
+
+                foreach (string item in clients)
+                {
+                    clientInfo = item.Split(',');
+                    if (clientInfo[0] == credentials.userName)
+                    {
+                        Console.WriteLine("\tUser Name Already Exists.");
+                        Console.WriteLine();
+                        Console.WriteLine("\nPress any key to go back to the Main menu and try again.");
+                        Console.ReadKey();
+                        userExists = true;
+                    }
+                }
+                    if (!userExists)
+                    {
+                        Console.Write("\tEnter Password, Must be at least 8 characters:");
+                        credentials.userPassword = GetPassword(passwordLength);
+                    }
+                    return credentials;
+            }
+
+
+            /// <summary>
+            /// GET Password
+            /// verifying the lengthof the passowrd is at least 8 chatacters
+            /// </summary>
+            /// <param name="passwordLength"></param>
+            /// <returns></returns>
+            private static string GetPassword( int passwordLength)
+            {
+                string userPassword;
+                bool isValid = false;
+
+                do
+                {
+                    userPassword = Console.ReadLine();
+                    if (userPassword.Length < passwordLength)
+                    {
+                        Console.Write("\tPassword must be at least 8 characters.");
+                    DisplayContinuePrompt();
+                    }
+                    else
+                    {
+                        isValid = true;
+                    }
+                } while (!isValid);
+                return userPassword;
+            }
+
+            /// <summary>
+            /// GET the USER Name
+            /// verify the user name that is it not blank
+            /// </summary>
+            /// <returns></returns>
+            private static string GetUserName()
+            {
+                string userName;
+                bool isValid = false;
+
+                do
+                {
+                    userName = Console.ReadLine();
+                    if (userName == "")
+                    {
+                        Console.Write("\tUser Name Can Not Be Blank.");
+                    }
+                    else
+                    {
+                        isValid = true;
+                    }
+
+                } while (!isValid);
+                return userName;
+            }
+
+            /// <summary>
+            /// LOG IN USER Method
+            /// Call the method GetUserCredientials to get the userName and pass from user
+            /// Match the user input with the info in the client list
+            /// </summary>
+            private static void LogInUser(List<string> clients)
+            {
+                bool isMatch = false;
+                (string userName, string userPassword) credentials;
+                DisplayScreenHeader("Login");
+                DisplayContinuePrompt();
+                credentials = GetUserCredentials();  //get the user info
+
+                foreach (string user in clients)
+                {
+                    string[] userInfo = user.Split(',');
+                    if (userInfo[0] == credentials.userName && userInfo[1] == credentials.userPassword)
+                    {
+                        Console.WriteLine("\tLogin Successful");
+                        DisplayContinuePrompt();
+			DisplayMenuScreen();
+                        
+                    isMatch = true;
+                    }
+                }
+                     if (!isMatch)
+                     {
+                        Console.WriteLine("\tInvalid Entry, Please Try Again");
+                     }
+                
+                DisplayContinuePrompt();
+            }
+
+            /// <summary>
+            /// GET USER CREDIENTIALS
+            /// getting the userName and userPassword from the user
+            /// calling meethod to verify the length of the passwrod
+            /// </summary>
+            /// <returns></returns>
+            private static (string userName, string userPassword) GetUserCredentials()
+            {
+                (string userName, string userPassword) credentials;
+                int passwordLength = 8;
+
+                Console.Write("\tEnter User Name:");
+                credentials.userName = GetUserName();
+                Console.Write("\tEnter Password:");
+                credentials.userPassword = GetPassword(passwordLength);
+
+                return credentials;
+            }
+
+
+            /// <summary>
+            /// Read and Write the file to the list
+            /// </summary>
+            /// <returns></returns>
+            private static List<string> ReadClientListFile()
+            {
+                List<string> clients = new List<string>();
+                string filePath = @"ClientList\ClientList.txt";
+
+                try
+                {
+                    clients = File.ReadAllLines(filePath).ToList();
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    Console.WriteLine("Directory Not Found: " + filePath);
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.WriteLine("Unable to Opent the File: " + filePath);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Unable to Read the File at this Path: " + filePath);
+                }
+                return clients;
+
+            }
+
+            /// <summary>
+            /// Write the list of clients to the file
+            /// </summary>
+            /// <param name="clients"></param>
+            private static void WriteToFile(List<string> clients)
+            {
+                string dataPath = @"ClientList/ClientList.txt";
+
+                try
+                {
+                    File.WriteAllLines(dataPath, clients);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    Console.WriteLine("Unable to open folder at path: " + dataPath);
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.WriteLine("Unable to open file at path: " + dataPath);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Unable to read the datat at path: " + dataPath);
+                }
+            }
+        #endregion USER LOGIN
 
         /// <summary>
         /// *****************************************************************
-        /// *                     Main Menu                                 *
+        /// *                    Post LogIn Main Menu                                 *
         /// *****************************************************************
         /// </summary>
         static void DisplayMenuScreen()
